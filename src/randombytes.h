@@ -5,7 +5,7 @@
 /* Load size_t on windows */
 #include <crtdefs.h>
 #else
-#ifndef ARCH_CORTEX
+#if !defined(ARCH_CORTEX) && !defined(ARCH_STM32H7A3XXQ)
 #include <sys/syscall.h>
 #endif
 #include <unistd.h>

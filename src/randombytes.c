@@ -133,6 +133,26 @@ static int randombytes_cortexm(void *buf, size_t n)
 
 #endif
 
+#ifdef ARCH_STM32H7A3XXQ
+#  undef SYS_getrandom
+
+#include "stm32h7a3xxq.h"
+
+static int randombytes_stm32(void *buf, size_t n)
+{
+
+	int *p;
+	//RNG_TypeDef rng = RNG;
+
+	for(int i = 0; i< n; i++){
+		while(RNG->SR == 0x00){}
+		p = buf + i;
+		*p = RNG->DR;
+	}
+    return n;
+}
+
+#endif
 
 #if defined(__linux__) && defined(SYS_getrandom)
 static int randombytes_linux_randombytes_getrandom(void *buf, size_t n)
@@ -273,6 +293,9 @@ int randombytes(void *buf, size_t n)
 #elif defined(ARCH_CORTEX)
 # pragma message("Using Cortex-M support for random API")
     return randombytes_cortexm(buf, n);
+#elif defined(ARCH_STM32H7A3XXQ)
+# pragma message("Using STM32 support for random API")
+    return randombytes_stm32(buf, n);
 #else
 # error "randombytes(...) is not supported on this platform"
 #endif
